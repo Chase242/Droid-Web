@@ -2,7 +2,7 @@ import React from "react"
 
 function RecordingScreen(){
     return(
-        <p>bitten</p>
+        <p>Gravar</p>
     )
 }
 export default RecordingScreen

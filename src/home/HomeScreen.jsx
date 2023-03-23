@@ -2,7 +2,7 @@ import React from "react"
 
 function HomeScreen(){
     return(
-        <p>bittenHome</p>
+        <p>Home</p>
     )
 }
 export default HomeScreen
