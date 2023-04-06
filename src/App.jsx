@@ -4,6 +4,7 @@ import React from 'react'
 import MensurationScreen from './mensurations/MensurationScreen';
 import RecordingScreen from './recording/RecordingScreen';
 import NavBar from './NavBar';
+import MensurationDetailsScreen from './mensurations/MensurationDetailsScreen';
 
 function App() {
   
@@ -17,6 +18,7 @@ function App() {
           <Route path="/" element={<HomeScreen/>} />
           <Route path="gravar" element={<RecordingScreen/>} />
           <Route path="medicoes" element={<MensurationScreen/>} />
+          <Route path="medicoes/:id" element={<MensurationDetailsScreen/>} />
         </Routes>
       </BrowserRouter>
     

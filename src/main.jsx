@@ -6,10 +6,7 @@ import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
 import { createTheme, CssBaseline, ScopedCssBaseline, ThemeProvider } from '@mui/material'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom/dist'
-import HomeScreen from './home/HomeScreen'
-import RecordingScreen from './recording/RecordingScreen'
-import MensurationScreen from './mensurations/MensurationScreen'
+
 
 const theme = createTheme({
   components: {
