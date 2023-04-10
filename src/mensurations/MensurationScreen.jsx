@@ -90,7 +90,7 @@ export default function MensurationScreen() {
              color='primary'
              onClick={(event)=>{
               event.stopPropagation()
-              window.open('/medicoes/' + cellValues.id, '_blank',)
+              window.open('/Droid-Web/medicoes/' + cellValues.id, '_blank',)
              }}
            >
               <ListIcon/>

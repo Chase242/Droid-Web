@@ -13,7 +13,7 @@ function App() {
     <>
       
       <NavBar/>
-      <BrowserRouter>
+      <BrowserRouter basename='/Droid-Web/'>
         <Routes>
           <Route path="/" element={<HomeScreen/>} />
           <Route path="gravar" element={<RecordingScreen/>} />
