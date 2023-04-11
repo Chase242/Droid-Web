@@ -1,4 +1,4 @@
-import {Route, BrowserRouter, Routes, Link } from 'react-router-dom'
+import {Route, BrowserRouter, Routes, Link, HashRouter } from 'react-router-dom'
 import HomeScreen from './home/HomeScreen'
 import React from 'react'
 import MensurationScreen from './mensurations/MensurationScreen';
@@ -13,14 +13,14 @@ function App() {
     <>
       
       <NavBar/>
-      <BrowserRouter basename='/Droid-Web/'>
+      <HashRouter >
         <Routes>
           <Route path="/" element={<HomeScreen/>} />
-          <Route path="gravar" element={<RecordingScreen/>} />
-          <Route path="medicoes" element={<MensurationScreen/>} />
-          <Route path="medicoes/:id" element={<MensurationDetailsScreen/>} />
+          <Route path="/gravar" element={<RecordingScreen/>} />
+          <Route path="/medicoes" element={<MensurationScreen/>} />
+          <Route path="/medicoes/:id" element={<MensurationDetailsScreen/>} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     
     </>
   )
