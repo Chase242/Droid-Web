@@ -168,11 +168,11 @@ return(
             } type="number" yAxisId="1" />
               
             
-            <Tooltip />
+            <Tooltip labelFormatter={(label)=>'Tempo: '+label} />
             
-            <Line yAxisId="1" type="natural" dataKey="Aceleração em X" stroke="#82ca9d" animationDuration={300} />
-            <Line yAxisId="1" type="natural" dataKey="Aceleração em Y" stroke="#8884d8" animationDuration={300} />
-            <Line yAxisId="1" type="natural" dataKey="Aceleração em Z" stroke="#FF0000" animationDuration={300} />
+            <Line yAxisId="1" type="natural" dataKey="Aceleração em X" stroke="#82ca9d" dot = {false} animationDuration={300} />
+            <Line yAxisId="1" type="natural" dataKey="Aceleração em Y" stroke="#8884d8" dot = {false} animationDuration={300} />
+            <Line yAxisId="1" type="natural" dataKey="Aceleração em Z" stroke="#FF0000" dot = {false} animationDuration={300} />
 
             {chartState.refAreaLeft && chartState.refAreaRight ? (
               <ReferenceArea yAxisId="1" x1={chartState.refAreaLeft} x2={chartState.refAreaRight} strokeOpacity={0.3} />
