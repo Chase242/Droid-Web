@@ -17,10 +17,8 @@ const initialState = {
   right: 'dataMax',
   refAreaLeft: '',
   refAreaRight: '',
-  top: 'dataMax+1',
-  bottom: 'dataMin-1',
-  top2: 'dataMax+20',
-  bottom2: 'dataMin-20',
+  top:null,
+  bottom:null,
   animation: true,
 };
 
@@ -49,17 +47,27 @@ const [chartState,setChartState] = useState(initialState)
 const {id} = useParams()
 
 const getAxisYDomain = (from, to, initialArray) => {
-  console.log(from, to)
-  const refData = initialArray.slice(initialArray.findIndex((frame)=>{timeConverter(frame.time)==from}) - 1, initialArray.findIndex((frame)=>{timeConverter(frame.time)==to}));
+  
+  const refData = initialArray.slice(initialArray.findIndex((frame)=>timeConverter(frame.time)==from) - 1, initialArray.findIndex((frame)=>timeConverter(frame.time)==to));
+  
   
   const allValues=[]
   refData.forEach(frame => {
     allValues.push(frame.accelX,frame.accelY,frame.accelZ)
 
   });
-  return  [Math.min(...allValues).toString(),Math.max(...allValues).toString()]
-  
-  
+
+  let min = Math.min(...allValues)
+  let max = Math.max(...allValues)
+
+  if(min===0)min=-5
+  if(max===0)max=5
+  if(min<0)min=min*1.3
+  if(max<0)max=max*0.7 
+  if(min>0)min=min*0.7
+  if(max>0)max=max*1.3 
+  return  [min.toFixed(4),max.toFixed(4)]
+
 };
 
 function zoom() {
@@ -86,7 +94,7 @@ function zoom() {
     ...chartState,
     refAreaLeft: '',
     refAreaRight: '',
-    data: data.slice(),
+    
     left: refAreaLeft,
     right: refAreaRight,
     bottom,
@@ -103,10 +111,9 @@ function zoomOut() {
     refAreaRight: '',
     left: 'dataMin',
     right: 'dataMax',
-    top: 'dataMax+1',
-    bottom: 'dataMin',
-    top2: 'dataMax+50',
-    bottom2: 'dataMin+50',
+    top: null,
+    bottom: null,
+    
   });
 }
 
@@ -117,7 +124,7 @@ async function getMensuration(){
     setMensuration(response.data)
     setChartState({...chartState,data:response.data.data.map((frame)=>{
       const totalTime = timeConverter(frame.time)
-      return {tempo:totalTime, X:frame.accelX, Y:frame.accelY, Z:frame.accelZ}
+      return {tempo:totalTime, 'Aceleração em X':frame.accelX, 'Aceleração em Y':frame.accelY, 'Aceleração em Z':frame.accelZ}
     })})       
   }catch(error){
     const message = error.response.data.error
@@ -150,12 +157,18 @@ return(
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis allowDataOverflow dataKey="tempo" domain={[chartState.left, chartState.right]} type="number" />
-            <YAxis allowDataOverflow domain={[chartState.bottom, chartState.top]} type="number" yAxisId="1" />
+            <YAxis allowDataOverflow domain={([dataMin,dataMax])=>{
+              
+              return[chartState.bottom||(dataMin-5),chartState.top||(dataMax+5)]}
+
+            } type="number" yAxisId="1" />
+              
+            
             <Tooltip />
            
-            <Line yAxisId="1" type="natural" dataKey="X" stroke="#82ca9d" animationDuration={300} />
-            <Line yAxisId="1" type="natural" dataKey="Y" stroke="#8884d8" animationDuration={300} />
-            <Line yAxisId="1" type="natural" dataKey="Z" stroke="#8884d8" animationDuration={300} />
+            <Line yAxisId="1" type="natural" dataKey="Aceleração em X" stroke="#82ca9d" animationDuration={300} />
+            <Line yAxisId="1" type="natural" dataKey="Aceleração em Y" stroke="#8884d8" animationDuration={300} />
+            <Line yAxisId="1" type="natural" dataKey="Aceleração em Z" stroke="#FF0000" animationDuration={300} />
 
             {chartState.refAreaLeft && chartState.refAreaRight ? (
               <ReferenceArea yAxisId="1" x1={chartState.refAreaLeft} x2={chartState.refAreaRight} strokeOpacity={0.3} />
