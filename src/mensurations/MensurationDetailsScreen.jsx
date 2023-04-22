@@ -1,8 +1,9 @@
 import api from "../api/api"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router"
-import { Stack } from "@mui/material";
+import { Button, Grid, IconButton, Stack, Typography } from "@mui/material";
 import { CartesianGrid, Line, LineChart, ReferenceArea, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap';
 
 function timeConverter(time){
   const minutes = Number(time.slice(0,2))*60
@@ -140,24 +141,27 @@ useEffect(()=>{
 
 return(
 
-  <Stack justifyContent={'center'} alignItems={'center'} style={{backgroundColor:'white',height:'100vh', userSelect: 'none'}}>
-    <button type="button" className="btn update" onClick={zoomOut}>
-          Zoom Out
-        </button>
+  <Grid container justifyContent={'center'} alignItems={'center'} style={{backgroundColor:'white',height:'100vh', userSelect: 'none'}}direction={'column'} >
+    <Button  color="primary"  onClick={zoomOut} endIcon={<ZoomOutMapIcon/>}>
+        Expandir
+    </Button>
 
-        <ResponsiveContainer width="80%" height={400}>
+    
+    <Grid item container alignItems={'center'}>
+      <Typography style={{transform: 'rotate(-90deg)'}} >Aceleração (m/s²)</Typography>
+        <ResponsiveContainer width="80%" height={400} >
           <LineChart
             width={900}
             height={400}
             data={chartState.data}
             onMouseDown={(e) => setChartState({ ...chartState,refAreaLeft: e.activeLabel })}
             onMouseMove={(e) => chartState.refAreaLeft && setChartState({ ...chartState,refAreaRight: e.activeLabel })}
-           
+            
             onMouseUp={zoom}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis allowDataOverflow dataKey="tempo" domain={[chartState.left, chartState.right]} type="number" />
-            <YAxis allowDataOverflow domain={([dataMin,dataMax])=>{
+            <XAxis allowDataOverflow name="tempo" dataKey="tempo" domain={[chartState.left, chartState.right]} type="number" />
+            <YAxis allowDataOverflow  domain={([dataMin,dataMax])=>{
               
               return[chartState.bottom||(dataMin-5),chartState.top||(dataMax+5)]}
 
@@ -165,7 +169,7 @@ return(
               
             
             <Tooltip />
-           
+            
             <Line yAxisId="1" type="natural" dataKey="Aceleração em X" stroke="#82ca9d" animationDuration={300} />
             <Line yAxisId="1" type="natural" dataKey="Aceleração em Y" stroke="#8884d8" animationDuration={300} />
             <Line yAxisId="1" type="natural" dataKey="Aceleração em Z" stroke="#FF0000" animationDuration={300} />
@@ -175,7 +179,11 @@ return(
             ) : null}
           </LineChart>
         </ResponsiveContainer>
-  </Stack>
+    </Grid>
+    
+    <Typography>Tempo(segundos)</Typography>
+    
+  </Grid>
 )
 }
 export default MensurationDetailsScreen
