@@ -10,6 +10,10 @@ function timeConverter(time) {
   return minutes + seconds + miliseconds;
 }
 
+const realizarIntegral = (tempoA, tempoB, valorA, valorB) => {
+  return ((tempoB - tempoA) * (valorB + valorA)) / 2;
+};
+
 function MensurationDetailsScreen() {
   const [mensuration, setMensuration] = useState({
     _id: null,
@@ -26,7 +30,7 @@ function MensurationDetailsScreen() {
     ],
   });
   const [decomposedChartData, setDecomposedChartData] = useState([]);
-  const [unifiedChartData, setUnifiedChartData] = useState([]);
+  const [velocityChartData, setVelocityChartData] = useState([]);
 
   const { id } = useParams();
 
@@ -45,6 +49,43 @@ function MensurationDetailsScreen() {
           };
         })
       );
+      setVelocityChartData(
+        response.data.data.map((frame, idx, arr) => {
+          if (idx !== 0) {
+            const tempoAnterior = timeConverter(arr[idx - 1].time);
+            const xAnterior = arr[idx - 1].accelX;
+            const yAnterior = arr[idx - 1].accelY;
+            const zAnterior = arr[idx - 1].accelZ;
+            const tempoAtual = timeConverter(frame.time);
+
+            const xConverted = realizarIntegral(
+              tempoAnterior,
+              tempoAtual,
+              xAnterior,
+              frame.accelX
+            );
+            const yConverted = realizarIntegral(
+              tempoAnterior,
+              tempoAtual,
+              yAnterior,
+              frame.accelY
+            );
+            const zConverted = realizarIntegral(
+              tempoAnterior,
+              tempoAtual,
+              zAnterior,
+              frame.accelZ
+            );
+
+            return {
+              tempo: Number(tempoAtual.toFixed(5)),
+              "Aceleração em X": Number(xConverted.toFixed(5)),
+              "Aceleração em Y": Number(yConverted.toFixed(5)),
+              "Aceleração em Z": Number(zConverted.toFixed(5)),
+            };
+          }
+        })
+      );
     } catch (error) {
       const message = error.response.data.error;
       alert(
@@ -60,7 +101,7 @@ function MensurationDetailsScreen() {
   return (
     <>
       <AccelChart chartData={decomposedChartData} />
-      <AccelChart chartData={decomposedChartData} />
+      <AccelChart chartData={velocityChartData} />
     </>
   );
 }

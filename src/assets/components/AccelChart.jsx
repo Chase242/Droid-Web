@@ -37,8 +37,6 @@ function AccelChart(props) {
 
   const getAxisYDomain = (from, to, initialArray) => {
     const refData = initialArray.slice(
-      //initialArray.findIndex((frame) => timeConverter(frame.time) == from) - 1,
-      //initialArray.findIndex((frame) => timeConverter(frame.time) == to)
       initialArray.findIndex((frame) => frame.tempo === from) - 1,
       initialArray.findIndex((frame) => frame.tempo === to)
     );
@@ -61,7 +59,7 @@ function AccelChart(props) {
     if (max < 0) max = max * 0.7;
     if (min > 0) min = min * 0.7;
     if (max > 0) max = max * 1.3;
-    console.log(min, max);
+
     return [Number(min.toFixed(4)), Number(max.toFixed(4))];
   };
 
