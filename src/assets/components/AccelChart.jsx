@@ -44,9 +44,9 @@ function AccelChart(props) {
     const allValues = [];
     refData.forEach((frame) => {
       allValues.push(
-        frame["Aceleração em X"],
-        frame["Aceleração em Y"],
-        frame["Aceleração em Z"]
+        frame[props.quantityName + " em X"],
+        frame[props.quantityName + " em Y"],
+        frame[props.quantityName + " em Z"]
       );
     });
 
@@ -127,7 +127,7 @@ function AccelChart(props) {
 
       <Grid item container alignItems={"center"}>
         <Typography style={{ transform: "rotate(-90deg)" }}>
-          Aceleração (m/s²)
+          {props.quantityName} ({props.measureUnit})
         </Typography>
         <ResponsiveContainer width="80%" height={400}>
           <LineChart
@@ -155,8 +155,8 @@ function AccelChart(props) {
               allowDataOverflow
               domain={([dataMin, dataMax]) => {
                 return [
-                  chartState.bottom || dataMin - 5,
-                  chartState.top || dataMax + 5,
+                  chartState.bottom || Number((dataMin - 5).toFixed(4)),
+                  chartState.top || Number((dataMax + 5).toFixed(4)),
                 ];
               }}
               type="number"
@@ -168,7 +168,7 @@ function AccelChart(props) {
             <Line
               yAxisId="1"
               type="natural"
-              dataKey="Aceleração em X"
+              dataKey={props.quantityName + " em X"}
               stroke="#82ca9d"
               dot={false}
               animationDuration={300}
@@ -176,7 +176,7 @@ function AccelChart(props) {
             <Line
               yAxisId="1"
               type="natural"
-              dataKey="Aceleração em Y"
+              dataKey={props.quantityName + " em Y"}
               stroke="#8884d8"
               dot={false}
               animationDuration={300}
@@ -184,7 +184,7 @@ function AccelChart(props) {
             <Line
               yAxisId="1"
               type="natural"
-              dataKey="Aceleração em Z"
+              dataKey={props.quantityName + " em Z"}
               stroke="#FF0000"
               dot={false}
               animationDuration={300}

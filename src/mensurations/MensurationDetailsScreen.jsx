@@ -31,6 +31,7 @@ function MensurationDetailsScreen() {
   });
   const [decomposedChartData, setDecomposedChartData] = useState([]);
   const [velocityChartData, setVelocityChartData] = useState([]);
+  const [distanceChartData, setDistanceChartData] = useState([]);
 
   const { id } = useParams();
 
@@ -43,14 +44,14 @@ function MensurationDetailsScreen() {
           const totalTime = timeConverter(frame.time);
           return {
             tempo: Number(totalTime.toFixed(4)),
-            "Aceleração em X": Number(frame.accelX.toFixed(5)),
-            "Aceleração em Y": Number(frame.accelY.toFixed(5)),
-            "Aceleração em Z": Number(frame.accelZ.toFixed(5)),
+            "Aceleração em X": Number(frame.accelX.toFixed(4)),
+            "Aceleração em Y": Number(frame.accelY.toFixed(4)),
+            "Aceleração em Z": Number(frame.accelZ.toFixed(4)),
           };
         })
       );
-      setVelocityChartData(
-        response.data.data.map((frame, idx, arr) => {
+      const newVelocityChartData = response.data.data
+        .map((frame, idx, arr) => {
           if (idx !== 0) {
             const tempoAnterior = timeConverter(arr[idx - 1].time);
             const xAnterior = arr[idx - 1].accelX;
@@ -78,13 +79,53 @@ function MensurationDetailsScreen() {
             );
 
             return {
-              tempo: Number(tempoAtual.toFixed(5)),
-              "Aceleração em X": Number(xConverted.toFixed(5)),
-              "Aceleração em Y": Number(yConverted.toFixed(5)),
-              "Aceleração em Z": Number(zConverted.toFixed(5)),
+              tempo: Number(tempoAtual.toFixed(4)),
+              "Velocidade em X": Number(xConverted.toFixed(4)),
+              "Velocidade em Y": Number(yConverted.toFixed(4)),
+              "Velocidade em Z": Number(zConverted.toFixed(4)),
             };
           }
         })
+        .filter((frame, index) => index !== 0);
+      setVelocityChartData(newVelocityChartData);
+      setDistanceChartData(
+        newVelocityChartData
+          .map((frame, idx, arr) => {
+            if (idx !== 0) {
+              const tempoAnterior = arr[idx - 1].tempo;
+              const xAnterior = arr[idx - 1]["Velocidade em X"];
+              const yAnterior = arr[idx - 1]["Velocidade em Y"];
+              const zAnterior = arr[idx - 1]["Velocidade em Z"];
+              const tempoAtual = frame.tempo;
+
+              const xConverted = realizarIntegral(
+                tempoAnterior,
+                tempoAtual,
+                xAnterior,
+                frame["Velocidade em X"]
+              );
+              const yConverted = realizarIntegral(
+                tempoAnterior,
+                tempoAtual,
+                yAnterior,
+                frame["Velocidade em Y"]
+              );
+              const zConverted = realizarIntegral(
+                tempoAnterior,
+                tempoAtual,
+                zAnterior,
+                frame["Velocidade em Z"]
+              );
+
+              return {
+                tempo: Number(tempoAtual.toFixed(4)),
+                "Posição em X": Number(xConverted.toFixed(4)),
+                "Posição em Y": Number(yConverted.toFixed(4)),
+                "Posição em Z": Number(zConverted.toFixed(4)),
+              };
+            }
+          })
+          .filter((frame, index) => index !== 0)
       );
     } catch (error) {
       const message = error.response.data.error;
@@ -100,8 +141,21 @@ function MensurationDetailsScreen() {
 
   return (
     <>
-      <AccelChart chartData={decomposedChartData} />
-      <AccelChart chartData={velocityChartData} />
+      <AccelChart
+        chartData={decomposedChartData}
+        quantityName={"Aceleração"}
+        measureUnit={"m/s²"}
+      />
+      <AccelChart
+        chartData={velocityChartData}
+        quantityName={"Velocidade"}
+        measureUnit={"m/s"}
+      />
+      <AccelChart
+        chartData={distanceChartData}
+        quantityName={"Posição"}
+        measureUnit={"m"}
+      />
     </>
   );
 }
