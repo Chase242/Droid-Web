@@ -50,7 +50,7 @@ function MensurationDetailsScreen() {
           };
         })
       );
-      const newVelocityChartData = response.data.data
+      let newVelocityChartData = response.data.data
         .map((frame, idx, arr) => {
           if (idx !== 0) {
             const tempoAnterior = timeConverter(arr[idx - 1].time);
@@ -87,6 +87,32 @@ function MensurationDetailsScreen() {
           }
         })
         .filter((frame, index) => index !== 0);
+      newVelocityChartData = newVelocityChartData.reduce(
+        (total, frame, index) => {
+          const newArray = [...total];
+          if (index === 0) {
+            return [
+              {
+                tempo: frame.tempo,
+                "Velocidade em X": frame["Velocidade em X"],
+                "Velocidade em Y": frame["Velocidade em Y"],
+                "Velocidade em Z": frame["Velocidade em Z"],
+              },
+            ];
+          }
+          newArray.push({
+            tempo: frame.tempo,
+            "Velocidade em X":
+              frame["Velocidade em X"] + newArray[index - 1]["Velocidade em X"],
+            "Velocidade em Y":
+              frame["Velocidade em Y"] + newArray[index - 1]["Velocidade em Y"],
+            "Velocidade em Z":
+              frame["Velocidade em Z"] + newArray[index - 1]["Velocidade em Z"],
+          });
+          return newArray;
+        },
+        []
+      );
       setVelocityChartData(newVelocityChartData);
       setDistanceChartData(
         newVelocityChartData
@@ -126,6 +152,29 @@ function MensurationDetailsScreen() {
             }
           })
           .filter((frame, index) => index !== 0)
+          .reduce((total, frame, index) => {
+            const newArray = [...total];
+            if (index === 0) {
+              return [
+                {
+                  tempo: frame.tempo,
+                  "Posição em X": frame["Posição em X"],
+                  "Posição em Y": frame["Posição em Y"],
+                  "Posição em Z": frame["Posição em Z"],
+                },
+              ];
+            }
+            newArray.push({
+              tempo: frame.tempo,
+              "Posição em X":
+                frame["Posição em X"] + newArray[index - 1]["Posição em X"],
+              "Posição em Y":
+                frame["Posição em Y"] + newArray[index - 1]["Posição em Y"],
+              "Posição em Z":
+                frame["Posição em Z"] + newArray[index - 1]["Posição em Z"],
+            });
+            return newArray;
+          }, [])
       );
     } catch (error) {
       const message = error.response.data.error;
