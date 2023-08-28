@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import api from "../api/api";
 import AccelChart from "../assets/components/AccelChart";
+import { CSVLink } from "react-csv";
+import GetAppIcon from "@mui/icons-material/GetApp";
+import IconButton from "@mui/material/IconButton/IconButton";
 
 function timeConverter(time) {
   const minutes = Number(time.slice(0, 2)) * 60;
@@ -188,18 +191,71 @@ function MensurationDetailsScreen() {
     getMensuration();
   }, []);
 
+  const csvSettingsAccel = {
+    filename: "medicao_Aceleracao.csv",
+    headers: [
+      { label: "Tempo", key: "tempo" },
+      { label: "AceleracaoX", key: "Aceleração em X" },
+      { label: "AceleracaoY", key: "Aceleração em Y" },
+      { label: "AceleracaoZ", key: "Aceleração em Z" },
+    ],
+    data: decomposedChartData,
+  };
+
+  const csvSettingsVelocity = {
+    filename: "medicao_Velocidade.csv",
+    headers: [
+      { label: "Tempo", key: "tempo" },
+      { label: "VelocidadeX", key: "Velocidade em X" },
+      { label: "VelocidadeY", key: "Velocidade em Y" },
+      { label: "VelocidadeZ", key: "Velocidade em Z" },
+    ],
+    data: velocityChartData,
+  };
+
+  const csvSettingsPosition = {
+    filename: "medicao_Posicao.csv",
+    headers: [
+      { label: "Tempo", key: "tempo" },
+      { label: "PosiçãoX", key: "Posição em X" },
+      { label: "PosiçãoY", key: "Posição em Y" },
+      { label: "PosiçãoZ", key: "Posição em Z" },
+    ],
+    data: distanceChartData,
+  };
+
   return (
     <>
+      <CSVLink {...csvSettingsAccel}>
+        <IconButton>
+          <GetAppIcon />
+        </IconButton>
+      </CSVLink>
+
       <AccelChart
         chartData={decomposedChartData}
         quantityName={"Aceleração"}
         measureUnit={"m/s²"}
       />
+
+      <CSVLink {...csvSettingsVelocity}>
+        <IconButton>
+          <GetAppIcon />
+        </IconButton>
+      </CSVLink>
+
       <AccelChart
         chartData={velocityChartData}
         quantityName={"Velocidade"}
         measureUnit={"m/s"}
       />
+
+      <CSVLink {...csvSettingsPosition}>
+        <IconButton>
+          <GetAppIcon />
+        </IconButton>
+      </CSVLink>
+
       <AccelChart
         chartData={distanceChartData}
         quantityName={"Posição"}
