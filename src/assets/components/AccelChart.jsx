@@ -11,7 +11,7 @@ import {
   ReferenceArea,
 } from "recharts";
 import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
-import Polyfit from "./polyfit";
+import Polyfit from "./Polyfit.jsx";
 
 const initialState = {
   data: [],
