@@ -11,6 +11,7 @@ import {
   ReferenceArea,
 } from "recharts";
 import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
+import Polyfit from "./polyfit";
 
 const initialState = {
   data: [],
@@ -25,6 +26,9 @@ const initialState = {
 
 function AccelChart(props) {
   const [chartState, setChartState] = useState(initialState);
+  const [showDegreeBox, setShowDegreeBox] = useState(false);
+  const [selectedDegree, setSelectedDegree] = useState(null);
+  const [polyfit, setPolyfit] = useState(null);
 
   useEffect(() => {
     if (props.chartData.length > 1) {
@@ -66,7 +70,8 @@ function AccelChart(props) {
   function zoom() {
     let { refAreaLeft, refAreaRight } = chartState;
     const data = chartState.data || [];
-
+    console.log(refAreaLeft);
+    console.log(refAreaRight);
     if (refAreaLeft === refAreaRight || refAreaRight === "") {
       setChartState({
         ...chartState,
@@ -121,6 +126,9 @@ function AccelChart(props) {
       style={{ backgroundColor: "white", height: "100vh", userSelect: "none" }}
       direction={"column"}
     >
+      <Grid item>
+        <Polyfit />
+      </Grid>
       <Button color="primary" onClick={zoomOut} endIcon={<ZoomOutMapIcon />}>
         Expandir
       </Button>
