@@ -40,7 +40,7 @@ const Polyfit = (props) => {
   const [resultZ, setResultZ] = useState(null);
 
   return (
-    <Grid container>
+    <Grid container sx={{ userSelect: "text" }}>
       <Grid item marginBottom={2}>
         Insira o grau do polinômio desejado:
       </Grid>
