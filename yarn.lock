@@ -1470,6 +1470,11 @@ picocolors@^1.0.0:
   resolved "https://registry.yarnpkg.com/picocolors/-/picocolors-1.0.0.tgz#cb5bdc74ff3f51892236eaf79d68bc44564ab81c"
   integrity sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==
 
+polynomial-regression@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/polynomial-regression/-/polynomial-regression-1.1.0.tgz#017f9de2e576ce0e1f6c42f44477e57004601c23"
+  integrity sha512-4zFAerzZLrtMh802xyTM143rnGwkNtvoryCEjCuAQTcmkPhQDLKnVmwaOL48A/bhxodD0lDX70HRVS/T51QBnQ==
+
 postcss-value-parser@^3.3.0:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/postcss-value-parser/-/postcss-value-parser-3.3.1.tgz#9ff822547e2893213cf1c30efa51ac5fd1ba8281"

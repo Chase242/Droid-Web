@@ -27,8 +27,7 @@ const initialState = {
 function AccelChart(props) {
   const [chartState, setChartState] = useState(initialState);
   const [showDegreeBox, setShowDegreeBox] = useState(false);
-  const [selectedDegree, setSelectedDegree] = useState(null);
-  const [polyfit, setPolyfit] = useState(null);
+  const [polyfitData, setPolyfitData] = useState([]);
 
   useEffect(() => {
     if (props.chartData.length > 1) {
@@ -70,8 +69,7 @@ function AccelChart(props) {
   function zoom() {
     let { refAreaLeft, refAreaRight } = chartState;
     const data = chartState.data || [];
-    console.log(refAreaLeft);
-    console.log(refAreaRight);
+
     if (refAreaLeft === refAreaRight || refAreaRight === "") {
       setChartState({
         ...chartState,
@@ -102,6 +100,14 @@ function AccelChart(props) {
       bottom,
       top,
     });
+
+    setPolyfitData(
+      chartState.data.filter(
+        (frame) => frame.tempo >= refAreaLeft && frame.tempo <= refAreaRight
+      )
+    );
+
+    setShowDegreeBox(true);
   }
 
   function zoomOut() {
@@ -116,6 +122,7 @@ function AccelChart(props) {
       top: null,
       bottom: null,
     });
+    setShowDegreeBox(false);
   }
 
   return (
@@ -126,12 +133,17 @@ function AccelChart(props) {
       style={{ backgroundColor: "white", height: "100vh", userSelect: "none" }}
       direction={"column"}
     >
+      {showDegreeBox && (
+        <Grid item>
+          <Polyfit data={polyfitData} quantityName={props.quantityName} />
+        </Grid>
+      )}
+
       <Grid item>
-        <Polyfit />
+        <Button color="primary" onClick={zoomOut} endIcon={<ZoomOutMapIcon />}>
+          Expandir
+        </Button>
       </Grid>
-      <Button color="primary" onClick={zoomOut} endIcon={<ZoomOutMapIcon />}>
-        Expandir
-      </Button>
 
       <Grid item container alignItems={"center"}>
         <Typography style={{ transform: "rotate(-90deg)" }}>
