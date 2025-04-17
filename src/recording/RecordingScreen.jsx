@@ -1,108 +1,100 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Grid, Typography, Card, CardContent, Button } from "@mui/material";
+import LatencyDisplay from "./LatencyDisplay";
 
-function RecordingScreen() {
+export default function RecordingScreen() {
     const [mobileDevices, setMobileDevices] = useState([]);
     const [recording, setRecording] = useState(false);
     const [selectedIds, setSelectedIds] = useState([]);
-    const ws = useRef(null);
+    const [latency, setLatency] = useState(null);
+    const wsRef = useRef(null);
+    const pingTimestampRef = useRef(0);
 
     useEffect(() => {
-        // Estabelece a conexão com o WebSocket quando o componente é montado
-        ws.current = new WebSocket('wss://droid-api-fork-c5901914b16e.herokuapp.com'); // Substitua PORT pela porta correta
+        const ws = new WebSocket('wss://droid-api-fork-c5901914b16e.herokuapp.com');
+        wsRef.current = ws;
 
-        ws.current.onopen = () => {
+        ws.onopen = () => {
             console.log('Conectado ao WebSocket');
-            // Identifica-se como PC
-            ws.current.send(JSON.stringify({ event: 'PcIdentify' }));
+            ws.send(JSON.stringify({ event: 'PcIdentify' }));
+            sendPing();
         };
 
-        ws.current.onmessage = (message) => {
-            const data = JSON.parse(message.data);
-            handleWebSocketMessage(data);
+        ws.onmessage = ({ data }) => {
+            const msg = JSON.parse(data);
+            handleWebSocketMessage(msg);
         };
 
-        ws.current.onclose = () => {
-            console.log('Desconectado do WebSocket');
-        };
+        ws.onclose = () => setLatency(null);
 
-        // Limpa a conexão quando o componente é desmontado
+        const pingInterval = setInterval(sendPing, 5000);
+
         return () => {
-            ws.current.close();
+            clearInterval(pingInterval);
+            ws.close();
         };
     }, []);
 
-    // Mapeamento de eventos para seus manipuladores correspondentes
+    function sendPing() {
+        const ws = wsRef.current;
+        if (!ws || ws.readyState !== WebSocket.OPEN) return;
+        const now = Date.now();
+        pingTimestampRef.current = now;
+        ws.send(JSON.stringify({ event: 'Ping' }));
+    }
+
     const eventHandlers = {
-        'ConnectedDevices': (eventData) => {
-            setMobileDevices(eventData);
-        },
-        'message': (eventData) => {
-            console.log('Mensagem do servidor:', eventData);
-        },
-        // Você pode adicionar mais manipuladores de eventos aqui, se necessário
-    };
-
-    const handleWebSocketMessage = (data) => {
-        const { event, data: eventData } = data;
-        const handler = eventHandlers[event];
-
-        if (handler) {
-            handler(eventData);
-        } else {
-            console.warn('Evento desconhecido:', event);
+        ConnectedDevices: setMobileDevices,
+        message: data => console.log('Mensagem do servidor:', data),
+        Pong: serverTs => {
+            const now = Date.now();
+            const rtt = now - pingTimestampRef.current;
+            setLatency(rtt);
         }
     };
 
-    const handleToggleRecording = () => {
+    function handleWebSocketMessage({ event, data }) {
+        const handler = eventHandlers[event];
+        if (handler) handler(data);
+        else console.warn('Evento desconhecido:', event);
+    }
+
+    function handleToggleRecording() {
+        const ws = wsRef.current;
         if (!recording) {
-            // Envia o comando para iniciar a gravação nos dispositivos selecionados
-            ws.current.send(JSON.stringify({
-                event: 'StartRecord',
-                data: selectedIds
-            }));
+            ws.send(JSON.stringify({ event: 'StartRecord', data: selectedIds }));
         } else {
-            // Envia o comando para parar a gravação nos dispositivos selecionados
-            ws.current.send(JSON.stringify({
-                event: 'StopRecord',
-                data: selectedIds
-            }));
-            setSelectedIds([]); // Limpa os IDs selecionados ao parar
+            ws.send(JSON.stringify({ event: 'StopRecord', data: selectedIds }));
+            setSelectedIds([]);
         }
         setRecording(!recording);
-    };
+    }
 
-    const handleCardClick = (device) => {
-        if (recording || device.recording) return; // Bloqueia a seleção se a gravação estiver ativa
-        setSelectedIds((prevSelected) =>
-            prevSelected.includes(device.id)
-                ? prevSelected.filter((selectedId) => selectedId !== device.id)
-                : [...prevSelected, device.id]
+    function handleCardClick(device) {
+        if (recording || device.recording) return;
+        setSelectedIds(prev =>
+            prev.includes(device.id)
+                ? prev.filter(id => id !== device.id)
+                : [...prev, device.id]
         );
-    };
+    }
 
     return (
-        <div style={{ textAlign: "center", padding: "20px" }}>
+        <div style={{ position: 'relative', textAlign: "center", padding: "20px" }}>
+            <LatencyDisplay latency={latency}/>
+
             <Button
                 variant="contained"
                 onClick={handleToggleRecording}
-                disabled={selectedIds.length === 0 && !recording} // Desabilita o botão se nenhum cartão estiver selecionado
+                disabled={selectedIds.length === 0 && !recording}
                 color={recording ? "error" : "success"}
-                style={{
-                    color: "white",
-                    marginBottom: "20px",
-                }}
+                style={{ color: "white", marginBottom: "20px" }}
             >
                 {recording ? "PARAR" : "GRAVAR"}
             </Button>
 
-            <Grid 
-                container 
-                spacing={3} 
-                justifyContent="center" 
-                style={{ paddingTop: 20, paddingLeft: 50, paddingRight: 50 }}
-            >
-                {mobileDevices.map((device) => (
+            <Grid container spacing={3} justifyContent="center" style={{ paddingTop: 20, paddingLeft: 50, paddingRight: 50 }}>
+                {mobileDevices.map(device => (
                     <Grid item xs={12} sm={6} md={3} key={device.id}>
                         <Card
                             onClick={() => handleCardClick(device)}
@@ -116,36 +108,25 @@ function RecordingScreen() {
                             }}
                         >
                             <CardContent style={{ padding: "8px 15px" }}>
-                                <Typography 
-                                    variant="body2" 
-                                    style={{
-                                        fontSize: "0.7rem",
-                                        whiteSpace: "nowrap",
-                                        overflow: "hidden",
-                                        textOverflow: "ellipsis",
-                                    }}
-                                >
+                                <Typography variant="body2" style={{
+                                    fontSize: "0.7rem",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                }}>
                                     ID: {device.id}
                                 </Typography>
                                 <Typography variant="body1">NOME: {device.deviceModel}</Typography>
-                                <Grid
-                                    container
-                                    justifyContent="center"
-                                    alignItems="center"
-                                    style={{ marginTop: 10 }}
-                                >
-                                    <Grid
-                                        item
-                                        style={{
-                                            width: 20,
-                                            height: 20,
-                                            borderRadius: "50%",
-                                            padding: 20,
-                                            border: "10px solid darkGray",
-                                            backgroundColor: device.recording ? "#D80000" : "dimGray",
-                                            animation: device.recording ? "pulse 1.5s infinite" : "none",
-                                        }}
-                                    />
+                                <Grid container justifyContent="center" alignItems="center" style={{ marginTop: 10 }}>
+                                    <Grid item style={{
+                                        width: 20,
+                                        height: 20,
+                                        borderRadius: "50%",
+                                        padding: 20,
+                                        border: "10px solid darkGray",
+                                        backgroundColor: device.recording ? "#D80000" : "dimGray",
+                                        animation: device.recording ? "pulse 1.5s infinite" : "none",
+                                    }} />
                                 </Grid>
                             </CardContent>
                         </Card>
@@ -153,18 +134,13 @@ function RecordingScreen() {
                 ))}
             </Grid>
 
-            {/* CSS para efeito pulsante */}
-            <style>
-                {`
-                    @keyframes pulse {
-                        0% { transform: scale(1); opacity: 1; }
-                        50% { transform: scale(1.2); opacity: 0.7; }
-                        100% { transform: scale(1); opacity: 1; }
-                    }
-                `}
-            </style>
+            <style>{`
+        @keyframes pulse {
+          0% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.2); opacity: 0.7; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
         </div>
     );
 }
-
-export default RecordingScreen;
